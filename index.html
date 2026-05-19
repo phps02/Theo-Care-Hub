@@ -348,6 +348,61 @@
     .stats, .grid { padding: 0 20px; }
     .footer { padding: 20px; flex-direction: column; align-items: flex-start; }
   }
+
+  /* ── Quick Actions strip (thin utility bar above footer) ── */
+  .quick-actions {
+    max-width: 1200px;
+    margin: 24px auto 0;
+    padding: 0 32px;
+  }
+  .quick-actions-strip {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .quick-actions-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+  .quick-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+  .quick-action:hover { background: var(--bg-warm); }
+  .quick-action-icon { font-size: 14px; line-height: 1; }
+  .quick-action-title { font-weight: 500; }
+  .quick-action-desc {
+    color: var(--ink-muted);
+    font-size: 12px;
+    margin-left: 4px;
+  }
+  .quick-action-arrow {
+    color: var(--ink-muted);
+    font-size: 12px;
+    margin-left: 2px;
+  }
+  .quick-action:hover .quick-action-arrow { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .quick-actions { padding: 0 20px; }
+    .quick-action-desc { display: none; }
+    .quick-actions-label { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -467,9 +522,9 @@
     </div>
   </a>
 
-  <a class="card" data-tracker="animaleo" href="https://phps02.github.io/Theo-EO-Blends/" target="_blank" rel="noopener">
+  <a class="card" data-tracker="animaleo" href="https://phps02.github.io/animaleo-blend-index/" target="_blank" rel="noopener">
     <div class="card-icon">💧</div>
-    <div class="card-title">Theo's Essential Oils</div>
+    <div class="card-title">AnimalEO Blend Index</div>
     <div class="card-desc">All 54 AnimalEO essential-oil blends classified for Theo's seizure protocol — verified ingredients, primary-source evidence, and storm-day recommendations.</div>
     <div class="card-meta">
       <span class="card-status">Live</span>
@@ -477,6 +532,19 @@
     </div>
   </a>
 
+</div>
+
+<!-- Quick Actions strip -->
+<div class="quick-actions">
+  <div class="quick-actions-strip">
+    <span class="quick-actions-label">Quick Actions</span>
+    <a class="quick-action" href="vet-summary.html">
+      <span class="quick-action-icon">📄</span>
+      <span class="quick-action-title">Vet Summary</span>
+      <span class="quick-action-desc">Printable one-page card for vet visits</span>
+      <span class="quick-action-arrow">→</span>
+    </a>
+  </div>
 </div>
 
 <!-- Footer -->

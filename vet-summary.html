@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theo — Vet Summary Card</title>
+<style>
+  :root {
+    --ink: #000000;
+    --ink-muted: #555555;
+    --ink-soft: #888888;
+    --paper: #FFFFFF;
+    --line: #000000;
+    --line-soft: #BBBBBB;
+    --shade: #F2F2F2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #C8C4B8;
+    color: var(--ink);
+    margin: 0;
+    padding: 2rem 1rem;
+    line-height: 1.5;
+  }
+
+  /* ── Password overlay ───────────────────────────────── */
+  #pw-overlay {
+    position: fixed;
+    inset: 0;
+    background: #C8C4B8;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .pw-box {
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    padding: 32px 36px;
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+  }
+  .pw-logo {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+  .pw-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .pw-subtitle {
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-bottom: 20px;
+  }
+  #pw-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    outline: none;
+  }
+  #pw-input:focus {
+    background: var(--shade);
+  }
+  #pw-submit {
+    width: 100%;
+    background: var(--ink);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  #pw-submit:hover { background: #333; }
+  .pw-error {
+    color: #993C1D;
+    font-size: 12px;
+    margin-top: 10px;
+    min-height: 16px;
+  }
+  @media print {
+    #pw-overlay { display: none !important; }
+  }
+  .print-bar {
+    max-width: 8.5in;
+    margin: 0 auto 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .print-btn {
+    background: var(--ink);
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .print-btn:hover { background: #333; }
+  .data-status {
+    font-size: 12px;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .data-status .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  .data-status.loading .dot { background: var(--ink-soft); animation: pulse 1.2s infinite; }
+  .data-status.error .dot { background: #993C1D; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .page {
+    background: var(--paper);
+    max-width: 8.5in;
+    margin: 0 auto;
+    padding: 0.5in 0.6in;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    color: var(--ink);
+  }
+
+  .hdr {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+  }
+  .hdr-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .name { font-size: 28px; font-weight: bold; letter-spacing: 0.5px; }
+  .generated { font-size: 11px; color: var(--ink-muted); text-align: right; line-height: 1.4; }
+  .signalment { font-size: 13px; color: var(--ink); }
+  .signalment .label {
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    margin-right: 4px;
+  }
+  .signalment .divider { color: var(--ink-soft); margin: 0 8px; }
+
+  .contact-strip {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+  .contact-strip .field { flex: 1; }
+  .contact-strip .field.wide { flex: 1.6; }
+  .contact-strip .field-label {
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    margin-bottom: 3px;
+  }
+  .contact-strip .field-line {
+    border-bottom: 1px solid var(--ink);
+    height: 20px;
+  }
+
+  /* Editable inputs that look like the field lines */
+  .field-input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--ink);
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    padding: 2px 0;
+    height: 24px;
+    outline: none;
+  }
+  .field-input:focus {
+    border-bottom: 2px solid var(--ink);
+    background: var(--shade);
+  }
+  .field-input::placeholder { color: var(--ink-soft); font-style: italic; }
+
+  .question-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .q-bullet {
+    color: var(--ink);
+    font-size: 14px;
+    margin-right: 6px;
+    line-height: 1;
+  }
+  .question-input {
+    flex: 1;
+    border: none;
+    border-bottom: 1px solid var(--ink-soft);
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    padding: 2px 0;
+    height: 22px;
+    outline: none;
+  }
+  .question-input:focus {
+    border-bottom: 2px solid var(--ink);
+    background: var(--shade);
+  }
+  .question-input::placeholder { color: var(--ink-soft); font-style: italic; }
+
+  .questions-box {
+    border: 1px solid var(--ink);
+    padding: 10px 14px 12px;
+    margin-bottom: 16px;
+  }
+  .questions-label {
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .questions-line {
+    border-bottom: 1px solid var(--ink-soft);
+    height: 18px;
+    margin-bottom: 5px;
+    position: relative;
+    padding-left: 16px;
+  }
+  .questions-line::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    top: -1px;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .questions-line:last-child { margin-bottom: 0; }
+
+  .featured {
+    border: 2px solid var(--ink);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .featured-label {
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .featured-value { font-size: 18px; font-weight: 700; color: var(--ink); margin-top: 3px; }
+  .featured-detail { font-size: 12px; color: var(--ink-muted); text-align: right; }
+
+  .section { margin-bottom: 16px; }
+  .section-head {
+    text-transform: uppercase;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    font-weight: bold;
+    padding-bottom: 5px;
+    border-bottom: 1.5px solid var(--ink);
+    margin-bottom: 9px;
+  }
+  .section-body { font-size: 13px; }
+
+  .rescue-box { border: 1.5px solid var(--ink); padding: 10px 14px; }
+  .rescue-item { display: flex; margin-bottom: 6px; line-height: 1.55; }
+  .rescue-item:last-child { margin-bottom: 0; }
+  .rescue-drug { font-weight: 700; color: var(--ink); min-width: 175px; }
+  .rescue-dose { color: var(--ink); }
+
+  .med-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+  .med-item { display: flex; line-height: 1.55; }
+  .med-name { font-weight: 700; flex: 1; }
+  .med-dose { color: var(--ink-muted); margin-left: 8px; white-space: nowrap; }
+
+  .supp-list { line-height: 1.7; }
+  .supp-tcvm {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line-soft);
+    font-style: italic;
+  }
+  .empty-note { color: var(--ink-muted); font-style: italic; }
+
+  .interaction-note {
+    border: 1px solid var(--ink);
+    border-left: 4px solid var(--ink);
+    padding: 9px 13px;
+    font-size: 12.5px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .interaction-label {
+    font-weight: 700;
+    color: var(--ink);
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    margin-right: 8px;
+  }
+
+  .sz-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .sz-table thead th {
+    background: var(--shade);
+    text-align: left;
+    padding: 7px 9px;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+    border-top: 1.5px solid var(--ink);
+    font-weight: 700;
+  }
+  .sz-table tbody td {
+    padding: 7px 9px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .sz-table tbody tr:last-child td {
+    border-bottom: 1.5px solid var(--ink);
+  }
+  .sz-table .sz-num { color: var(--ink-muted); width: 22px; text-align: right; }
+  .sz-table .sz-dates { white-space: nowrap; font-weight: 700; width: 105px; }
+  .sz-table .sz-events { text-align: center; width: 55px; font-weight: 700; }
+
+  .totals-strip {
+    border: 1px solid var(--ink);
+    padding: 8px 12px;
+    font-size: 12.5px;
+    display: flex;
+    gap: 24px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .totals-item { display: flex; align-items: baseline; }
+  .totals-label {
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    margin-right: 7px;
+  }
+  .totals-value { font-weight: 700; }
+
+  .footer {
+    margin-top: 18px;
+    padding-top: 10px;
+    border-top: 2px solid var(--ink);
+    font-size: 11.5px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+  .footer div { display: block; }
+  .footer strong { color: var(--ink); display: inline-block; min-width: 145px; }
+
+  /* Skeleton/loading placeholders */
+  .skeleton {
+    display: inline-block;
+    background: var(--shade);
+    color: transparent;
+    border-radius: 2px;
+    user-select: none;
+  }
+
+  @media print {
+    body { background: white; padding: 0; margin: 0; }
+    .page {
+      box-shadow: none;
+      padding: 0.4in;
+      max-width: none;
+      page-break-inside: avoid;
+    }
+    .print-bar { display: none !important; }
+    .section { page-break-inside: avoid; }
+    .sz-table { page-break-inside: avoid; }
+    @page { margin: 0.3in; size: letter; }
+
+    /* Input fields print as clean text on a line — no focus highlights */
+    .field-input, .question-input {
+      background: transparent !important;
+      border-bottom: 1px solid var(--ink) !important;
+      color: var(--ink) !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .field-input::placeholder, .question-input::placeholder {
+      color: transparent !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Password overlay (UI-only protection — matches seizure tracker pattern) -->
+<div id="pw-overlay">
+  <div class="pw-box">
+    <div class="pw-logo">📄</div>
+    <div class="pw-title">Theo — Vet Summary</div>
+    <div class="pw-subtitle">Private. Enter password to view.</div>
+    <input type="password" id="pw-input" placeholder="Password" autocomplete="off" autofocus>
+    <button id="pw-submit">Unlock</button>
+    <div class="pw-error" id="pw-error"></div>
+  </div>
+</div>
+
+<div id="page-content" style="display:none">
+
+<div class="print-bar">
+  <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  <div id="data-status" class="data-status loading">
+    <div class="dot"></div>
+    <span id="status-text">Loading live data…</span>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="name">THEODULF</div>
+      <div class="generated">
+        <div id="gen-stamp">Generated —</div>
+        <div>Live from seizure tracker + supplements sheet</div>
+      </div>
+    </div>
+    <div class="signalment">
+      <span class="label">Wt</span>87 lb
+      <span class="divider">·</span>
+      <span class="label">Sex</span>M
+      <span class="divider">·</span>
+      <span class="label">DOB</span>4/19/23 (<span id="sig-age">3 yo</span>)
+      <span class="divider">·</span>
+      <span class="label">Dx</span>Idiopathic Epilepsy
+      <span class="divider">·</span>
+      <span class="label">Onset</span>7/15/25 (<span id="sig-onset-mo">27 mo</span>)
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="contact-strip">
+    <div class="field">
+      <div class="field-label">Owner phone</div>
+      <input class="field-input" type="text" id="owner-phone" placeholder="">
+    </div>
+    <div class="field">
+      <div class="field-label">Emergency contact</div>
+      <input class="field-input" type="text" id="emergency-contact" placeholder="">
+    </div>
+    <div class="field wide">
+      <div class="field-label">Reason for visit</div>
+      <input class="field-input" type="text" id="reason-for-visit" placeholder="">
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div class="questions-box">
+    <div class="questions-label">Questions / Concerns to Discuss</div>
+    <div class="question-row"><span class="q-bullet">•</span><input class="question-input" type="text" id="question-1" placeholder=""></div>
+    <div class="question-row"><span class="q-bullet">•</span><input class="question-input" type="text" id="question-2" placeholder=""></div>
+    <div class="question-row"><span class="q-bullet">•</span><input class="question-input" type="text" id="question-3" placeholder=""></div>
+  </div>
+
+  <!-- FEATURED: LAST SEIZURE -->
+  <div class="featured">
+    <div>
+      <div class="featured-label">Last seizure event</div>
+      <div class="featured-value" id="last-event-date">—</div>
+    </div>
+    <div class="featured-detail" id="last-event-detail">
+      <span class="skeleton">days ago · loading…</span>
+    </div>
+  </div>
+
+  <!-- RESCUE PROTOCOL (static — vet-prescribed) -->
+  <div class="section">
+    <div class="section-head">Home Rescue Protocol</div>
+    <div class="section-body rescue-box">
+      <div class="rescue-item">
+        <div class="rescue-drug">Levetiracetam ER 750mg</div>
+        <div class="rescue-dose">1 extra dose PO post-seizure, up to 3× in 24h</div>
+      </div>
+      <div class="rescue-item">
+        <div class="rescue-drug">Clorazepate 15mg</div>
+        <div class="rescue-dose">2.5 tabs PO q8h × 2 days following a seizure</div>
+      </div>
+      <div class="rescue-item">
+        <div class="rescue-drug">Midazolam 5mg/mL</div>
+        <div class="rescue-dose">1.6mL intranasal (0.8mL/nostril), split between nostrils</div>
+      </div>
+      <div class="rescue-item">
+        <div class="rescue-drug">Trazodone 150mg</div>
+        <div class="rescue-dose">PRN rescue — added 3/17/26</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CYP450 (static) -->
+  <div class="interaction-note">
+    <span class="interaction-label">Interaction</span>
+    Currently on CBD (ElleVet) — inhibits CYP450. May elevate Phenobarbital / KBr / Zonisamide blood levels if added.
+  </div>
+
+  <!-- DAILY MEDS (pulled live from sheet — group=AED, end_date blank) -->
+  <div class="section">
+    <div class="section-head">Current Anticonvulsants — Daily</div>
+    <div class="section-body med-grid" id="aed-grid">
+      <div class="empty-note">Loading…</div>
+    </div>
+  </div>
+
+  <!-- SUPPLEMENTS (pulled live from sheet — group!=AED, end_date blank) -->
+  <div class="section">
+    <div class="section-head">Current Supplements</div>
+    <div class="section-body supp-list">
+      <span id="supp-list">Loading…</span>
+      <div class="supp-tcvm" id="supp-tcvm-line">
+        TCVM: Di Tan Tang (AM + PM) — prescribed by TCVM vet
+      </div>
+    </div>
+  </div>
+
+  <!-- SEIZURE HISTORY (pulled live + hardcoded merge) -->
+  <div class="section">
+    <div class="section-head" id="sz-head">Seizure History — loading…</div>
+    <table class="sz-table">
+      <thead>
+        <tr>
+          <th class="sz-num">#</th>
+          <th class="sz-dates">Dates</th>
+          <th class="sz-events">Events</th>
+          <th>Pattern / Notes</th>
+        </tr>
+      </thead>
+      <tbody id="sz-body">
+        <tr><td colspan="4" class="empty-note">Loading seizure history…</td></tr>
+      </tbody>
+    </table>
+
+    <div class="totals-strip">
+      <div class="totals-item">
+        <span class="totals-label">Total events</span>
+        <span class="totals-value" id="total-events">—</span>
+      </div>
+      <div class="totals-item">
+        <span class="totals-label">Total clusters</span>
+        <span class="totals-value" id="total-clusters">—</span>
+      </div>
+      <div class="totals-item">
+        <span class="totals-label">Days since onset</span>
+        <span class="totals-value" id="days-since-onset">—</span>
+      </div>
+      <div class="totals-item">
+        <span class="totals-label">Days since last</span>
+        <span class="totals-value" id="days-since-last">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div><strong>Primary:</strong> Animal Hospital of West Chester · 513-777-5131</div>
+    <div><strong>Neurology (ER):</strong> MedVet Cincinnati · Dr. Dzombar · 513-561-0069</div>
+    <div><strong>Neurology (Referral):</strong> OSU Veterinary Medical Center · Dr. Nicholas Lilly · 614-247-0584 · osuvet.neurology@osu.edu</div>
+    <div><strong>TCVM / Integrative:</strong> Veterinary Wellness Center, Harrison OH · 513-367-4111 · Dr. Gaston, Dr. Rauf · vetwellness.com</div>
+  </div>
+
+</div>
+
+</div><!-- /#page-content -->
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  //   PASSWORD GATE — UI-only client-side protection
+  //   30-minute auto-lock, persists via localStorage timestamp
+  //   (Same pattern as seizure tracker)
+  // ═══════════════════════════════════════════════════════════════
+  const PW = 'theo2026';
+  const UNLOCK_KEY = 'vet-summary:unlocked-at';
+  const UNLOCK_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
+  function isUnlocked() {
+    try {
+      const ts = parseInt(localStorage.getItem(UNLOCK_KEY) || '0', 10);
+      return ts && (Date.now() - ts) < UNLOCK_WINDOW_MS;
+    } catch (e) { return false; }
+  }
+
+  function markUnlocked() {
+    try { localStorage.setItem(UNLOCK_KEY, String(Date.now())); } catch (e) {}
+  }
+
+  function revealPage() {
+    document.getElementById('pw-overlay').style.display = 'none';
+    document.getElementById('page-content').style.display = '';
+    init();
+  }
+
+  function showUnlockUI() {
+    const input = document.getElementById('pw-input');
+    const submit = document.getElementById('pw-submit');
+    const errEl = document.getElementById('pw-error');
+
+    function tryUnlock() {
+      if (input.value === PW) {
+        markUnlocked();
+        revealPage();
+      } else {
+        errEl.textContent = 'Incorrect password.';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    submit.addEventListener('click', tryUnlock);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') tryUnlock();
+    });
+    input.focus();
+  }
+
+  // Run gate immediately on page load
+  if (isUnlocked()) {
+    revealPage();
+  } else {
+    showUnlockUI();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   CONFIG — same API URL as seizure tracker, hub, timeline
+  // ═══════════════════════════════════════════════════════════════
+  const SHEET_API = 'https://script.google.com/macros/s/AKfycbzSnTKRMgsetCnyMIVKbV_MdKkHTKn6P1ogaAamoqzAzfK21mlUrLMdIIFZWLjC9xtLaw/exec';
+
+  // Theo's DOB and onset for live age calculations
+  const DOB = new Date('2023-04-19');
+  const ONSET = new Date('2025-07-15');
+
+  // 17 historical seizures — matches what's hardcoded in seizure tracker and hub
+  const SEIZURES_HARDCODED = [
+    {dt:'2025-07-15T10:00'}, {dt:'2025-07-15T14:00'},
+    {dt:'2025-09-02T13:00'},
+    {dt:'2025-09-25T23:44'}, {dt:'2025-09-26T02:45'}, {dt:'2025-09-26T05:30'},
+    {dt:'2025-09-26T13:00'}, {dt:'2025-09-27T06:15'},
+    {dt:'2025-12-19T06:00'},
+    {dt:'2026-01-11T15:30'},
+    {dt:'2026-02-05T08:00'}, {dt:'2026-02-05T14:40'}, {dt:'2026-02-05T19:50'},
+    {dt:'2026-03-17T10:50'}, {dt:'2026-03-17T12:43'}, {dt:'2026-03-17T16:00'}, {dt:'2026-03-17T22:00'},
+  ];
+
+  // Per-cluster annotations — keyed by ISO date of the cluster's first event
+  // (Only the 7 historical clusters carry notes; auto-detected new clusters
+  // appear in the table without a note, which is honest.)
+  const CLUSTER_NOTES = {
+    '2025-07-15': 'First observed events, ~4h apart. Keppra started.',
+    '2025-09-02': 'Single event after 49-day gap.',
+    '2025-09-25': 'First true cluster. ER visit 9/27. CBD Heal stopped. Clorazepate added.',
+    '2025-12-19': 'Single event after 83-day gap (longest seizure-free interval).',
+    '2026-01-11': 'Single event, 23 days after prior cluster.',
+    '2026-02-05': 'Cluster across single day (08:00, 14:40, 19:50).',
+    '2026-03-17': 'Cluster across single day (10:50–22:00). ER visit. Keppra ↑, trazodone added to rescue.',
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  //   DATA FETCHING
+  // ═══════════════════════════════════════════════════════════════
+  async function fetchSeizures() {
+    try {
+      const r = await fetch(SHEET_API + '?action=list&t=' + Date.now(), {cache: 'no-store'});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
+    } catch (e) { console.warn('fetchSeizures:', e); return null; }
+  }
+
+  async function fetchSupplements() {
+    try {
+      const r = await fetch(SHEET_API + '?action=listSupps&t=' + Date.now(), {cache: 'no-store'});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return await r.json();
+    } catch (e) { console.warn('fetchSupplements:', e); return null; }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   CLUSTER LOGIC (3-day proximity — matches hub)
+  // ═══════════════════════════════════════════════════════════════
+  function clusterEvents(sortedDates) {
+    if (!sortedDates.length) return [];
+    const clusters = [[sortedDates[0]]];
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prev = new Date(sortedDates[i-1]).getTime();
+      const cur = new Date(sortedDates[i]).getTime();
+      if (cur - prev > 3 * 86400000) {
+        clusters.push([sortedDates[i]]);
+      } else {
+        clusters[clusters.length - 1].push(sortedDates[i]);
+      }
+    }
+    return clusters;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   FORMATTING HELPERS
+  // ═══════════════════════════════════════════════════════════════
+  function fmtMonthDayYr(d) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const yr = String(d.getFullYear()).slice(2);
+    return `${d.getMonth()+1}/${d.getDate()}/${yr}`;
+  }
+  function fmtLongMonth(d) {
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  }
+  function daysBetween(later, earlier) {
+    return Math.floor((later.getTime() - earlier.getTime()) / 86400000);
+  }
+  function monthsBetween(later, earlier) {
+    return (later.getFullYear() - earlier.getFullYear()) * 12 + (later.getMonth() - earlier.getMonth());
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   RENDERING — supplements + AEDs
+  // ═══════════════════════════════════════════════════════════════
+  function renderMedsAndSupplements(supps) {
+    const aedGrid = document.getElementById('aed-grid');
+    const suppList = document.getElementById('supp-list');
+
+    if (supps === null) {
+      aedGrid.innerHTML = '<div class="empty-note">Could not load — check sheet connection</div>';
+      suppList.textContent = '(could not load supplements)';
+      return;
+    }
+
+    // Active = end_date is empty/blank
+    const active = supps.filter(s => !s.end_date || String(s.end_date).trim() === '');
+
+    // Split AEDs (group=AED, case-insensitive) from supplements
+    const aeds = active.filter(s => String(s.group || '').trim().toLowerCase() === 'aed');
+    const otherSupps = active.filter(s => String(s.group || '').trim().toLowerCase() !== 'aed');
+
+    // Render AEDs (with dose, since vet needs that)
+    if (aeds.length === 0) {
+      aedGrid.innerHTML = '<div class="empty-note">No active anticonvulsants in sheet</div>';
+    } else {
+      aedGrid.innerHTML = aeds.map(a => `
+        <div class="med-item">
+          <div class="med-name">${escapeHtml(a.name || '')}</div>
+          <div class="med-dose">${escapeHtml(a.dose || '')}</div>
+        </div>
+      `).join('');
+    }
+
+    // Render supplements — names only (per user spec)
+    // Pull Di Tan Tang out and put it in the TCVM line if present
+    const tcvmIdx = otherSupps.findIndex(s =>
+      /di\s*tan\s*tang/i.test(s.name || '') || /di tan/i.test(s.name || '')
+    );
+    let tcvmSupp = null;
+    if (tcvmIdx >= 0) {
+      tcvmSupp = otherSupps.splice(tcvmIdx, 1)[0];
+    }
+
+    if (otherSupps.length === 0) {
+      suppList.textContent = '(no active supplements in sheet)';
+    } else {
+      suppList.textContent = otherSupps.map(s => s.name || '').filter(Boolean).join(' · ');
+    }
+
+    // TCVM line — use sheet data if present, otherwise keep hardcoded label
+    const tcvmLine = document.getElementById('supp-tcvm-line');
+    if (tcvmSupp) {
+      const dose = tcvmSupp.dose ? ` — ${escapeHtml(tcvmSupp.dose)}` : '';
+      tcvmLine.innerHTML = `TCVM: ${escapeHtml(tcvmSupp.name)}${dose}`;
+    }
+    // If no Di Tan Tang in sheet, the hardcoded line stays as-is
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   RENDERING — seizure table
+  // ═══════════════════════════════════════════════════════════════
+  function renderSeizures(liveSeizures) {
+    // Merge hardcoded + live, dedupe by ISO dt string
+    const liveOk = Array.isArray(liveSeizures);
+    const liveDts = liveOk ? liveSeizures.map(s => s.dt).filter(Boolean) : [];
+    const allDts = [...new Set([
+      ...SEIZURES_HARDCODED.map(s => s.dt),
+      ...liveDts,
+    ])].sort();
+
+    if (allDts.length === 0) {
+      document.getElementById('sz-head').textContent = 'Seizure History — no data';
+      document.getElementById('sz-body').innerHTML =
+        '<tr><td colspan="4" class="empty-note">No seizure data available.</td></tr>';
+      return;
+    }
+
+    const clusters = clusterEvents(allDts);
+
+    // Build table rows
+    const rows = clusters.map((cluster, i) => {
+      const first = new Date(cluster[0]);
+      const last = new Date(cluster[cluster.length - 1]);
+      const sameDay = first.toDateString() === last.toDateString();
+      const dateStr = sameDay
+        ? fmtMonthDayYr(first)
+        : `${fmtMonthDayYr(first)} – ${fmtMonthDayYr(last)}`;
+
+      // Look up note by date key (YYYY-MM-DD of first event)
+      const dateKey = cluster[0].slice(0, 10);
+      const note = CLUSTER_NOTES[dateKey] || '';
+
+      return `
+        <tr>
+          <td class="sz-num">${i + 1}</td>
+          <td class="sz-dates">${dateStr}</td>
+          <td class="sz-events">${cluster.length}</td>
+          <td>${escapeHtml(note)}</td>
+        </tr>
+      `;
+    }).join('');
+
+    document.getElementById('sz-body').innerHTML = rows;
+    document.getElementById('sz-head').textContent =
+      `Seizure History — ${clusters.length} Cluster${clusters.length === 1 ? '' : 's'}, ${allDts.length} Events`;
+
+    // Totals
+    const lastEventDate = new Date(allDts[allDts.length - 1]);
+    const today = new Date();
+
+    document.getElementById('total-events').textContent = allDts.length;
+    document.getElementById('total-clusters').textContent = clusters.length;
+    document.getElementById('days-since-onset').textContent = daysBetween(today, ONSET);
+    document.getElementById('days-since-last').textContent = daysBetween(today, lastEventDate);
+
+    // Featured "Last seizure" block
+    document.getElementById('last-event-date').textContent = fmtLongMonth(lastEventDate);
+    const lastCluster = clusters[clusters.length - 1];
+    const days = daysBetween(today, lastEventDate);
+    const dayLabel = days === 0 ? 'today' : days === 1 ? '1 day ago' : `${days} days ago`;
+    const clusterLabel = lastCluster.length > 1
+      ? `${dayLabel} · cluster of ${lastCluster.length} events`
+      : `${dayLabel} · single event`;
+    document.getElementById('last-event-detail').textContent = clusterLabel;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   HEADER — generated stamp, signalment age/onset months
+  // ═══════════════════════════════════════════════════════════════
+  function renderHeader() {
+    const now = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const longMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const dateStr = `${longMonths[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    const timeStr = now.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'});
+    document.getElementById('gen-stamp').textContent = `Generated ${dateStr} · ${timeStr}`;
+
+    // Live age — years
+    const ageMs = now - DOB;
+    const ageYrs = Math.floor(ageMs / (365.25 * 86400000));
+    document.getElementById('sig-age').textContent = `${ageYrs} yo`;
+
+    // Onset age in months
+    const onsetMonths = monthsBetween(ONSET, DOB);
+    document.getElementById('sig-onset-mo').textContent = `${onsetMonths} mo`;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   STATUS INDICATOR
+  // ═══════════════════════════════════════════════════════════════
+  function setStatus(state, text) {
+    const el = document.getElementById('data-status');
+    el.classList.remove('loading', 'error');
+    if (state !== 'ok') el.classList.add(state);
+    document.getElementById('status-text').textContent = text;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   ESCAPE HELPER
+  // ═══════════════════════════════════════════════════════════════
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   FORM PERSISTENCE — owner phone + emergency contact stick
+  //   between sessions; questions and reason reset each load
+  // ═══════════════════════════════════════════════════════════════
+  function setupFormPersistence() {
+    const persistent = ['owner-phone', 'emergency-contact'];
+    persistent.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      try {
+        const saved = localStorage.getItem('vet-summary:' + id);
+        if (saved) el.value = saved;
+      } catch (e) { /* localStorage may be unavailable */ }
+      el.addEventListener('input', () => {
+        try { localStorage.setItem('vet-summary:' + id, el.value); } catch (e) {}
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   MAIN
+  // ═══════════════════════════════════════════════════════════════
+  async function init() {
+    renderHeader();
+    setupFormPersistence();
+    const [seizures, supps] = await Promise.all([fetchSeizures(), fetchSupplements()]);
+
+    renderSeizures(seizures);
+    renderMedsAndSupplements(supps);
+
+    // Status
+    const seizuresOk = seizures !== null;
+    const suppsOk = supps !== null;
+    if (seizuresOk && suppsOk) {
+      const now = new Date();
+      const t = now.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'});
+      setStatus('ok', `Synced ${t}`);
+    } else if (!seizuresOk && !suppsOk) {
+      setStatus('error', 'Could not reach sheet — showing hardcoded fallback');
+    } else if (!seizuresOk) {
+      setStatus('error', 'Seizures unreachable — supplements live');
+    } else {
+      setStatus('error', 'Supplements unreachable — seizures live');
+    }
+  }
+
+  // init() is called by revealPage() after password unlock
+  // (or immediately if already unlocked from a previous session within 30 min)
+</script>
+
+</body>
+</html>
