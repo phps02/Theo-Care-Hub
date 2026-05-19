@@ -608,62 +608,6 @@
 
 <script>
   // ═══════════════════════════════════════════════════════════════
-  //   PASSWORD GATE — UI-only client-side protection
-  //   30-minute auto-lock, persists via localStorage timestamp
-  //   (Same pattern as seizure tracker)
-  // ═══════════════════════════════════════════════════════════════
-  const PW = 'theo2026';
-  const UNLOCK_KEY = 'vet-summary:unlocked-at';
-  const UNLOCK_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
-
-  function isUnlocked() {
-    try {
-      const ts = parseInt(localStorage.getItem(UNLOCK_KEY) || '0', 10);
-      return ts && (Date.now() - ts) < UNLOCK_WINDOW_MS;
-    } catch (e) { return false; }
-  }
-
-  function markUnlocked() {
-    try { localStorage.setItem(UNLOCK_KEY, String(Date.now())); } catch (e) {}
-  }
-
-  function revealPage() {
-    document.getElementById('pw-overlay').style.display = 'none';
-    document.getElementById('page-content').style.display = '';
-    init();
-  }
-
-  function showUnlockUI() {
-    const input = document.getElementById('pw-input');
-    const submit = document.getElementById('pw-submit');
-    const errEl = document.getElementById('pw-error');
-
-    function tryUnlock() {
-      if (input.value === PW) {
-        markUnlocked();
-        revealPage();
-      } else {
-        errEl.textContent = 'Incorrect password.';
-        input.value = '';
-        input.focus();
-      }
-    }
-
-    submit.addEventListener('click', tryUnlock);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') tryUnlock();
-    });
-    input.focus();
-  }
-
-  // Run gate immediately on page load
-  if (isUnlocked()) {
-    revealPage();
-  } else {
-    showUnlockUI();
-  }
-
-  // ═══════════════════════════════════════════════════════════════
   //   CONFIG — same API URL as seizure tracker, hub, timeline
   // ═══════════════════════════════════════════════════════════════
   const SHEET_API = 'https://script.google.com/macros/s/AKfycbzSnTKRMgsetCnyMIVKbV_MdKkHTKn6P1ogaAamoqzAzfK21mlUrLMdIIFZWLjC9xtLaw/exec';
@@ -962,6 +906,63 @@
     } else {
       setStatus('error', 'Supplements unreachable — seizures live');
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  //   PASSWORD GATE — UI-only client-side protection
+  //   30-minute auto-lock, persists via localStorage timestamp
+  //   (Same pattern as seizure tracker)
+  //   MUST run last — after init() and all consts are defined
+  // ═══════════════════════════════════════════════════════════════
+  const PW = 'theo2026';
+  const UNLOCK_KEY = 'vet-summary:unlocked-at';
+  const UNLOCK_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
+
+  function isUnlocked() {
+    try {
+      const ts = parseInt(localStorage.getItem(UNLOCK_KEY) || '0', 10);
+      return ts && (Date.now() - ts) < UNLOCK_WINDOW_MS;
+    } catch (e) { return false; }
+  }
+
+  function markUnlocked() {
+    try { localStorage.setItem(UNLOCK_KEY, String(Date.now())); } catch (e) {}
+  }
+
+  function revealPage() {
+    document.getElementById('pw-overlay').style.display = 'none';
+    document.getElementById('page-content').style.display = '';
+    init();
+  }
+
+  function showUnlockUI() {
+    const input = document.getElementById('pw-input');
+    const submit = document.getElementById('pw-submit');
+    const errEl = document.getElementById('pw-error');
+
+    function tryUnlock() {
+      if (input.value === PW) {
+        markUnlocked();
+        revealPage();
+      } else {
+        errEl.textContent = 'Incorrect password.';
+        input.value = '';
+        input.focus();
+      }
+    }
+
+    submit.addEventListener('click', tryUnlock);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') tryUnlock();
+    });
+    input.focus();
+  }
+
+  // Run gate after everything else is defined
+  if (isUnlocked()) {
+    revealPage();
+  } else {
+    showUnlockUI();
   }
 
   // init() is called by revealPage() after password unlock
