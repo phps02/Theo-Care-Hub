@@ -96,51 +96,54 @@
 
   /* Hero */
   .hero {
-    padding: 48px 32px 24px;
+    padding: 18px 32px 16px;
     max-width: 1200px;
     margin: 0 auto;
   }
   .hero-eyebrow {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.25em;
+    font-size: 10px;
+    letter-spacing: 0.22em;
     color: var(--ink-muted);
     text-transform: uppercase;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
   }
   .hero-title {
     font-family: 'Fraunces', serif;
-    font-size: clamp(32px, 4.5vw, 48px);
+    font-size: clamp(24px, 3vw, 32px);
     font-weight: 600;
     line-height: 1.1;
     letter-spacing: -0.02em;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
     color: var(--ink);
   }
   .hero-title em { font-style: italic; color: var(--accent); font-weight: 500; }
   .hero-sub {
-    font-size: 16px;
+    font-size: 13px;
     color: var(--ink-muted);
-    max-width: 720px;
-    line-height: 1.6;
+    max-width: none;
+    line-height: 1.45;
   }
 
   /* Quick stats */
   .quick-stats {
     max-width: 1200px;
-    margin: 28px auto 0;
+    margin: 12px auto 0;
     padding: 0 32px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
+    align-items: stretch;
     gap: 12px;
   }
   .qstat {
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 10px 12px;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .qstat::before {
     content: '';
@@ -154,25 +157,25 @@
   .qstat:nth-child(4)::before { background: var(--slate); }
   .qstat-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.15em;
+    font-size: 9px;
+    letter-spacing: 0.12em;
     color: var(--ink-muted);
     text-transform: uppercase;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .qstat-value {
     font-family: 'Fraunces', serif;
-    font-size: 24px;
+    font-size: 19px;
     font-weight: 600;
     line-height: 1.1;
     color: var(--ink);
   }
-  .qstat-trend { font-size: 12px; color: var(--ink-muted); font-style: italic; margin-top: 2px; }
+  .qstat-trend { font-size: 10px; color: var(--ink-muted); font-style: italic; margin-top: auto; padding-top: 3px; line-height: 1.35; word-break: break-word; }
 
   /* Sections */
   .section {
     max-width: 1200px;
-    margin: 36px auto 0;
+    margin: 16px auto 0;
     padding: 0 32px;
   }
   .section-eyebrow {
@@ -329,33 +332,33 @@
   /* Excluded summary - badge grid */
   .excluded-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 8px;
   }
   .excluded-item {
     background: var(--paper);
     border: 1px solid var(--line);
     border-left: 3px solid var(--moss);
     border-radius: 8px;
-    padding: 14px 18px;
+    padding: 9px 12px;
   }
   .excluded-item-icon {
     color: var(--moss);
-    font-size: 18px;
-    margin-right: 6px;
+    font-size: 15px;
+    margin-right: 5px;
     font-weight: 700;
   }
   .excluded-item-title {
     font-family: 'Fraunces', serif;
     font-weight: 600;
     color: var(--ink);
-    font-size: 15px;
-    margin-bottom: 4px;
+    font-size: 13px;
+    margin-bottom: 3px;
   }
   .excluded-item-detail {
-    font-size: 12.5px;
+    font-size: 11px;
     color: var(--ink-muted);
-    line-height: 1.55;
+    line-height: 1.45;
   }
 
   /* Open items - warning box */
@@ -364,17 +367,17 @@
     border: 1px solid var(--gold);
     border-left: 4px solid var(--gold);
     border-radius: 8px;
-    padding: 20px 24px;
+    padding: 12px 16px;
   }
   .open-items-title {
     font-family: 'Fraunces', serif;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 600;
     color: #7a5a10;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
   .open-items ul {
     list-style: none;
@@ -382,21 +385,21 @@
     margin: 0;
   }
   .open-items li {
-    padding: 10px 0 10px 28px;
+    padding: 5px 0 5px 24px;
     border-bottom: 1px dashed rgba(184,137,42,0.25);
     color: var(--ink-soft);
-    font-size: 14px;
-    line-height: 1.55;
+    font-size: 12px;
+    line-height: 1.4;
     position: relative;
   }
   .open-items li::before {
     content: '○';
     position: absolute;
     left: 4px;
-    top: 9px;
+    top: 6px;
     color: var(--gold);
     font-weight: 700;
-    font-size: 16px;
+    font-size: 13px;
   }
   .open-items li:last-child { border-bottom: none; }
   .open-items li strong { color: var(--ink); }
@@ -461,15 +464,26 @@
   .print-btn:hover { background: var(--accent); }
 
   @media print {
+    @page { size: landscape; margin: 0.8cm; }
     .topbar, .footer, .back-link, .print-btn {
       display: none !important;
     }
-    body { background: white; }
-    .hero, .section { padding: 12px 0; }
-    .hero { padding-top: 0; }
-    .table-wrap { break-inside: avoid; }
-    .open-items { break-inside: avoid; }
-    .excluded-item { break-inside: avoid; }
+    body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .hero { padding: 0 0 8px; }
+    .section { padding: 8px 0; }
+    .section-title { margin-bottom: 4px; }
+    .section-desc { margin-bottom: 8px; }
+    .diagnostic-table { font-size: 10px; }
+    .diagnostic-table td, .diagnostic-table th { padding: 4px 8px; }
+    /* Let big blocks flow and fill the page — no forced jumps that leave empty space */
+    .table-wrap, .open-items, .excluded-grid { break-inside: auto; }
+    /* Keep only atomic units from splitting */
+    tr, .excluded-item, .open-item { break-inside: avoid; }
+    /* Fill the landscape width with 3 columns of compact cards */
+    .excluded-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .excluded-item { padding: 8px 12px; }
+    .excluded-item-title { font-size: 12px; margin-bottom: 2px; }
+    .excluded-item-detail { font-size: 10px; line-height: 1.4; }
   }
 
   /* Mobile */
@@ -480,7 +494,11 @@
     .back-link { font-size: 10px; padding: 6px 10px; }
     .hero { padding: 32px 20px 16px; }
     .quick-stats, .section { padding: 0 20px; }
+    .quick-stats { grid-template-columns: 1fr; }
     .footer { padding: 20px; flex-direction: column; align-items: flex-start; }
+  }
+  @media (min-width: 641px) and (max-width: 900px) {
+    .quick-stats { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
 </head>
@@ -509,13 +527,13 @@
 <div class="quick-stats">
   <div class="qstat">
     <div class="qstat-label">Tests Completed</div>
-    <div class="qstat-value">21</div>
+    <div class="qstat-value">24</div>
     <div class="qstat-trend">across 7 specialty areas</div>
   </div>
   <div class="qstat">
     <div class="qstat-label">Period Covered</div>
-    <div class="qstat-value">10 mo</div>
-    <div class="qstat-trend">Jul 2025 – Feb 2026</div>
+    <div class="qstat-value">11 mo</div>
+    <div class="qstat-trend">Jul 2025 – Jun 2026</div>
   </div>
   <div class="qstat">
     <div class="qstat-label">Providers</div>
@@ -677,7 +695,7 @@
           <td class="col-date">2/23/26</td>
           <td class="col-test">Vitamin D (25-OH)</td>
           <td class="col-provider">VDI Lab Services</td>
-          <td class="col-result"><span class="flagged">163 ng/mL (elevated; sufficient is 100–150)</span></td>
+          <td class="col-result"><span class="flagged">163.2 ng/mL (elevated; sufficient is 100–150)</span></td>
           <td class="col-ruleout">Vitamin D deficiency (not a seizure cause here); flagged for diet review</td>
         </tr>
         <tr>
@@ -686,6 +704,27 @@
           <td class="col-provider">Michigan State University</td>
           <td class="col-result">TT4 29 nmol/L, fT4 20, TSH 0.39, <span class="clean">TgAA 7% all normal</span>; TT3 1.0 (low end)</td>
           <td class="col-ruleout">Hypothyroidism (sick-euthyroid pattern persistent and stable); autoimmune thyroiditis</td>
+        </tr>
+        <tr>
+          <td class="col-date">5/6/26</td>
+          <td class="col-test">Toxoplasma (IgG + IgM) + Neospora caninum serology</td>
+          <td class="col-provider">IDEXX → Colorado State Univ. / Cornell Univ.</td>
+          <td class="col-result"><span class="clean">Toxoplasma IgG negative, IgM negative; Neospora IFA negative</span></td>
+          <td class="col-ruleout">Toxoplasmosis (protozoal CNS infection); neosporosis</td>
+        </tr>
+        <tr>
+          <td class="col-date">5/6/26</td>
+          <td class="col-test">Vitamin D (25-OH) recheck</td>
+          <td class="col-provider">VDI Lab Services</td>
+          <td class="col-result"><span class="clean">106.9 ng/mL (sufficient; ref 100–150)</span> — down from prior elevated reading</td>
+          <td class="col-ruleout">Vitamin D deficiency (not a seizure cause here); now within sufficient range — continue diet, retest 1 year</td>
+        </tr>
+        <tr>
+          <td class="col-date">6/8/26</td>
+          <td class="col-test">Total Health Profile (CBC + Chemistry) + Phenobarbital level</td>
+          <td class="col-provider">IDEXX · Animal Hospital of West Chester</td>
+          <td class="col-result"><span class="clean">Liver panel normal (ALT 43, AST 33, ALP 20, GGT 4); renal Creatinine 0.9 / SDMA 6 normal; calcium, protein, bilirubin normal</span>; <span class="flagged">BUN 40 (high — dietary/raw-fed expected)</span>; Phenobarbital 18.8 µg/mL (therapeutic range 15–35)</td>
+          <td class="col-ruleout">Ongoing organ/liver dysfunction on phenobarbital; renal dysfunction; hepatic encephalopathy (per enzymes). Confirms AED in therapeutic range — dosing decisions remain with Dr. Dzombar</td>
         </tr>
       </tbody>
     </table>
@@ -720,8 +759,12 @@
       <div class="excluded-item-detail">4Dx Plus negative — no heartworm, ehrlichia, Lyme, or anaplasma</div>
     </div>
     <div class="excluded-item">
+      <div class="excluded-item-title"><span class="excluded-item-icon">✓</span>Protozoal CNS infection</div>
+      <div class="excluded-item-detail">Toxoplasma IgG/IgM negative (CSU) and Neospora IFA negative (Cornell), 5/6/26 — rules out toxoplasmosis and neosporosis</div>
+    </div>
+    <div class="excluded-item">
       <div class="excluded-item-title"><span class="excluded-item-icon">✓</span>Liver / kidney dysfunction</div>
-      <div class="excluded-item-detail">Bloodwork normal across 4 panels (bile acids not yet done)</div>
+      <div class="excluded-item-detail">Bloodwork normal across 5 panels incl. 6/8/26 liver panel on phenobarbital (ALT/AST/ALP/GGT normal); renal normal (bile acids not yet done)</div>
     </div>
     <div class="excluded-item">
       <div class="excluded-item-title"><span class="excluded-item-icon">✓</span>Endocrine causes</div>
@@ -733,7 +776,7 @@
     </div>
     <div class="excluded-item">
       <div class="excluded-item-title"><span class="excluded-item-icon">✓</span>Vitamin deficiency causes</div>
-      <div class="excluded-item-detail">B12 normal, folate normal, vitamin D not deficient (slightly elevated)</div>
+      <div class="excluded-item-detail">B12 normal, folate normal; vitamin D not deficient (5/6/26 recheck 106.9 — back in sufficient range after prior elevated reading)</div>
     </div>
     <div class="excluded-item">
       <div class="excluded-item-title"><span class="excluded-item-icon">✓</span>GI absorption issues</div>
@@ -776,7 +819,7 @@
 <footer class="footer">
   <div class="footer-credit">Built with care · For Theo</div>
   <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-    <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+    <button class="print-btn" onclick="window.print()">🖨 Export PDF / Print</button>
     <span>Educational reference — share with vet team as needed</span>
   </div>
 </footer>
